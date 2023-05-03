@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import cmath
 import mne
 
+## color gradilent code =======================================================
 def hex_to_RGB(hex):
   ''' "#FFFFFF" -> [255,255,255] '''
   # Pass 16 to the integer function for change of base
@@ -56,16 +57,21 @@ def linear_gradient(start_hex, finish_hex, n):
 
   return color_dict(RGB_list)
 
-# %%
+# %% FIR filter================================================================
+def filt(freqs,sig):
+    h=signal.firwin(5, freqs, width=None, window='hamming', pass_zero=True, scale=True, nyq=None, fs=None)
+    b,a=signal.butter(1 ,[freqs[0]/(fs/2), freqs[1]/(fs/2)],btype='bandpass')
+    sig=signal.filtfilt(b,a,sig)
+    return sig
+# %% Read data
 plt.close('all')
 current_path = os.getcwd()
 ParentPath=os.path.abspath(os.path.join(current_path,os.pardir))
 Path2openSim=ParentPath+'/Simulations/'
 
-def filt(freqs,sig):
-    b,a=signal.butter(3,[freqs[0]/(fs/2), freqs[1]/(fs/2)],btype='bandpass')
-    sig=signal.filtfilt(b,a,sig)
-    return sig
+
+
+
 #Preprocessing Parameters
 fs=1000
 high_freq=[60,120]
