@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Wed May  3 15:00:20 2023
+Created on Mon May  8 15:23:49 2023
 
 @author: sflores
 """
@@ -22,49 +22,13 @@ t = arange(nsamples) / sample_rate
 x = cos(2*pi*120*t) + 2*sin(2*pi*250*t+0.1) + \
         2*sin(2*pi*100*t) + sin(2*pi*40*t + 0.1) + \
             3*sin(2*pi*23.45*t+.8)
-            
 
-            
-
-
-
-#------------------------------------------------
-# Create a FIR filter and apply it to x.
-#------------------------------------------------
-
-# The Nyquist rate of the signal.
-nyq_rate = sample_rate / 2.0
-
-# The desired width of the transition from pass to stop,
-# relative to the Nyquist  rate.  We'll design the filter
-# with a 5 Hz transition width.
-width = 5/nyq_rate
-
-# The desired attenuation in the stop band, in dB.
-ripple_db = 48.0
-
-# Compute the order and Kaiser parameter for the FIR filter.
-N, beta = kaiserord(ripple_db, width)
-# N=int(sample_rate/2)
-if (N % 2) == 0:
-    N+=1
-
-# The cutoff frequency of the filter.
-cutoff_hz = np.array([50,140])
-
-# Use firwin with a Kaiser window to create a lowpass FIR filter.
-taps = firwin(N, cutoff_hz/nyq_rate, window=('kaiser', beta),pass_zero='bandpass' )
-
-# Use lfilter to filter x with the FIR filter.
-half_len=round(len(x)/2)
-pad=min(N,half_len)
-x2=np.lib.pad(x,(pad+10,pad+10),'reflect')
-filtered_x = lfilter(taps, 1.0, x2)
-filtered_x=filtered_x[pad+10:-(pad+10)]
 x2=cos(2*pi*120*t) + 2*sin(2*pi*100*t)
-#------------------------------------------------
-# Plot the FIR filter coefficients.
-#------------------------------------------------
+N=int(sample_rate/4)+1
+nyq_rate = sample_rate / 2.0
+cutoff_hz = np.array([50,140])
+taps = firwin(N, cutoff_hz/nyq_rate,pass_zero='bandpass')
+filtered_x = lfilter(taps, 1.0, x)
 
 figure(1)
 plot(taps, 'bo-', linewidth=2)
@@ -111,10 +75,10 @@ figure(3)
 # plot(t, x, 'k')
 plot(t, x2, '--k')
 # Plot the filtered signal, shifted to compensate for the phase delay.
-plot(t, filtered_x, 'r-')
+plot(t-delay, filtered_x, 'r-')
 # Plot just the "good" part of the filtered signal.  The first N-1
 # samples are "corrupted" by the initial conditions.
-# plot(t, filtered_x, 'g', linewidth=4)
+plot(t[N-1:]-delay, filtered_x[N-1:], 'g', linewidth=4)
 
 xlabel('t')
 grid(True)
