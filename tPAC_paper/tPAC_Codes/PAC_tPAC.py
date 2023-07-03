@@ -280,15 +280,19 @@ fs=1000
 high_freq=[50,140]
 high_freqcwt=[50,200]
 low_freq=[2,12]
-winsize=1024
+winsize=2048
 steps=20
 # read signal
-x=pd.read_csv(Path2openSim+'x4.csv',header=None).to_numpy().reshape(6001,)[:2048]
-notch=notchFIR_Generate(fs, 60)
-x=FIR_Apply(x, fs, notch)
-t=pd.read_csv(Path2openSim+'t.csv',header=None).to_numpy().reshape(6001,)[:2048]
+x=pd.read_csv(Path2openSim+'x4.csv',header=None).to_numpy().reshape(6001,)[:4096]
+notch=notchFIR_Generate(fs, 75)
+# x=FIR_Apply(x, fs, notch)
+t=pd.read_csv(Path2openSim+'t.csv',header=None).to_numpy().reshape(6001,)[:4096]
 data_length=len(x)
-
+plt.figure()
+plt.plot(t,x)
+plt.xlabel('time [s]')
+plt.ylabel('Amplitude')
+plt.title('Simulated Signal, [4-115, 9-75] 35/-35 deg')
 #%% Comodulogram
 
 PhaseFreqVector = np.arange(low_freq[0], low_freq[1], 1)
@@ -469,8 +473,8 @@ c_sort=np.flip(np.sort(c))
 #%%
 epoch = [-.75, .75] 
 # for cc in c_sort[:2]:
-cc=c_sort[0]
-Fp=f[c==cc][1]
+cc=c_sort[1]
+Fp=f[c==cc][0]
 bandpass_fP = eegfilt_Generate(fs, relu2([Fp-PhaseFreq_BandWidth/2,Fp+PhaseFreq_BandWidth/2]))
 fp_signal=FIR_Apply(x,fs,bandpass_fP)
 locs_fp, _ = signal.find_peaks(-fp_signal)
